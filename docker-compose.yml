@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./documentos_generados:/app/documentos_generados
+    environment:
+      # Credenciales de acceso a la API
+      - APP_ADMIN_USERNAME=admin
+      - APP_ADMIN_PASSWORD=admin123
+      # Credenciales de SQL Server (Debes cambiarlas por las reales de tu servidor)
+      - DB_SERVER=host.docker.internal
+      - DB_USER=Digital
+      - DB_PASSWORD=jhon1234
+      - DB_NAME=DigitalizacionDB

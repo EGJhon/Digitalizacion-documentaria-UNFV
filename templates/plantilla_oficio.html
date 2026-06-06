@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Oficio</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px 50px; 
+            font-size: 11pt;
+            color: #000;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .header-left {
+            font-size: 16pt;
+            font-weight: bold;
+        }
+        .header-right {
+            font-size: 20pt;
+            font-weight: bold;
+        }
+        .orange-line {
+            border-top: 3px solid #E86C00;
+            margin-bottom: 15px;
+        }
+        .lema {
+            text-align: center;
+            font-style: italic;
+            font-size: 10pt;
+            margin-bottom: 20px;
+        }
+        .fecha {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        .nro-oficio {
+            text-decoration: underline;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .destinatario-block {
+            margin-bottom: 30px;
+            line-height: 1.2;
+        }
+        .asunto-ref-block {
+            margin-left: 30%;
+            margin-bottom: 30px;
+        }
+        .asunto-ref-table {
+            width: 100%;
+        }
+        .asunto-ref-table td {
+            vertical-align: top;
+            padding-bottom: 5px;
+        }
+        .label-bold {
+            font-weight: bold;
+            text-decoration: underline;
+            width: 80px;
+        }
+        .cuerpo {
+            text-align: justify;
+            line-height: 1.5;
+            margin-bottom: 40px;
+        }
+        .despedida {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .firma-block {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+        .footer-info {
+            font-size: 8pt;
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+        .footer-address {
+            text-align: center;
+            font-size: 8pt;
+            border-top: 2px solid #E86C00;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabecera Placeholder -->
+    <table width="100%" style="margin-bottom: 5px;">
+        <tr>
+            <td style="font-size: 14pt; font-weight: bold;">Universidad Nacional<br><span style="font-size: 16pt;">Federico Villarreal</span></td>
+            <td style="text-align: right; font-size: 24pt; font-weight: bold;">OCCII</td>
+        </tr>
+    </table>
+    <div class="orange-line"></div>
+
+    <div class="lema">
+        "{{ lema_anio if lema_anio else 'Año de la recuperación y consolidación de la economía peruana' }}"
+    </div>
+
+    <div class="fecha">
+        {{ lugar_fecha if lugar_fecha else ('Lima, ' + fecha_actual) }}
+    </div>
+
+    <div class="nro-oficio">
+        {{ nro_oficio }}
+    </div>
+
+    <div class="destinatario-block">
+        {% if destinatario_titulo %}<div>{{ destinatario_titulo }}</div>{% endif %}
+        {% if destinatario_nombre %}<div style="font-weight: bold;">{{ destinatario_nombre }}</div>{% endif %}
+        {% if destinatario_cargo %}<div>{{ destinatario_cargo }}</div>{% endif %}
+        {% if destinatario_dependencia %}<div>{{ destinatario_dependencia }}</div>{% endif %}
+        <div style="text-decoration: underline;">Presente.</div>-
+    </div>
+
+    <div class="asunto-ref-block">
+        <table class="asunto-ref-table">
+            <tr>
+                <td class="label-bold">Asunto:</td>
+                <td>{{ asunto }}</td>
+            </tr>
+            {% if referencia %}
+            <tr>
+                <td class="label-bold">Referencia:</td>
+                <td>{{ referencia | replace('\n', '<br>') | safe }}</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <div class="cuerpo">
+        {{ cuerpo_mensaje | replace('\n', '<br><br>') | safe }}
+    </div>
+
+    <div class="despedida">
+        Atentamente,
+    </div>
+
+    <div class="firma-block">
+        {{ remitente_nombre }}
+    </div>
+
+    <div class="footer-info">
+        {% if nt %}<div>NT: {{ nt }}</div>{% endif %}
+        {% if folios %}<div>Folios: {{ folios }}</div>{% endif %}
+        {% if copia %}<div>Cc: {{ copia }}</div>{% endif %}
+    </div>
+
+    <div class="footer-address">
+        Jr. Carlos Gonzales 285, Urb. Maranga, San Miguel<br>
+        Teléfono: 748-0888 Anexos: 160344 y 160345<br>
+        Correo electrónico: occii@unfv.edu.pe / Página web: www.unfv.edu.pe
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - UNFV Digital</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .menu-link {
+            display: block;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--primary-blue);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .menu-link:hover, .menu-link.active {
+            background: var(--primary-orange);
+            color: white;
+            box-shadow: 0 4px 10px rgba(232, 108, 0, 0.3);
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table th {
+            background-color: rgba(26,86,219,0.1);
+            color: var(--primary-blue);
+        }
+        table tr:hover {
+            background-color: rgba(232,108,0,0.05);
+        }
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            background: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo"><span style="color:var(--primary-orange)">UNFV</span> Dashboard</div>
+        <nav>
+            <a href="#" id="btnLogout" class="btn btn-blue" style="padding: 5px 15px;">Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="glass sidebar">
+            <h3 style="margin-top: 0; color: var(--text-color);">Menú</h3>
+            <a href="#" class="menu-link active" data-target="crearPanel">Crear Documentos</a>
+            <a href="#" class="menu-link" data-target="digitalizarPanel">Digitalizar Documentos</a>
+            <a href="#" class="menu-link" data-target="historialPanel">Historial de Documentos</a>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="glass main-content">
+            
+            <!-- PANEL: CREAR DOCUMENTOS -->
+            <div id="crearPanel" class="view-panel">
+                <h2 style="color: var(--primary-blue); border-bottom: 2px solid var(--primary-orange); padding-bottom: 10px;">Crear Documentos</h2>
+                <div class="form-group" style="max-width: 300px;">
+                    <label>Tipo de Documento a Crear</label>
+                    <select id="tipoCrearSelect">
+                        <option value="oficio">Oficio</option>
+                        <option value="resolucion" disabled>Resolución (Próximamente)</option>
+                    </select>
+                </div>
+
+                <div id="formularioCreacionContainer" style="margin-top: 30px;">
+                    <h3 style="color: var(--text-color);">Formulario de Oficio</h3>
+                    <form id="docFormCrear">
+                        <input type="hidden" id="c_origen" value="manual">
+                        <div class="form-group">
+                            <label>Lema del Año</label>
+                            <input type="text" id="c_lema_anio" placeholder='"Año de..."'>
+                        </div>
+                        <div class="form-group">
+                            <label>Lugar y Fecha</label>
+                            <input type="text" id="c_lugar_fecha" placeholder="San Miguel, 27 de mayo de 2025">
+                        </div>
+                        <div class="form-group">
+                            <label>N° Oficio</label>
+                            <input type="text" id="c_nro_oficio" required>
+                        </div>
+                        <h4 style="margin-bottom: 5px;">Datos del Destinatario</h4>
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" id="c_destinatario_titulo" placeholder="Señor doctor">
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" id="c_destinatario_nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cargo</label>
+                            <input type="text" id="c_destinatario_cargo">
+                        </div>
+                        <div class="form-group">
+                            <label>Dependencia</label>
+                            <input type="text" id="c_destinatario_dependencia">
+                        </div>
+                        <h4 style="margin-bottom: 5px;">Cuerpo del Documento</h4>
+                        <div class="form-group">
+                            <label>Asunto</label>
+                            <input type="text" id="c_asunto" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Referencia</label>
+                            <textarea id="c_referencia" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje</label>
+                            <textarea id="c_cuerpo_mensaje" rows="5" required></textarea>
+                        </div>
+                        <h4 style="margin-bottom: 5px;">Datos Finales</h4>
+                        <div class="form-group">
+                            <label>Nombre del Remitente (Firma)</label>
+                            <input type="text" id="c_remitente_nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Número de Trámite (NT)</label>
+                            <input type="text" id="c_nt">
+                        </div>
+                        <div class="form-group">
+                            <label>Folios</label>
+                            <input type="text" id="c_folios">
+                        </div>
+                        <div class="form-group">
+                            <label>Con copia (Cc)</label>
+                            <input type="text" id="c_copia">
+                        </div>
+                        <button type="submit" class="btn btn-orange">Generar y Guardar Documento</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PANEL: DIGITALIZAR DOCUMENTOS -->
+            <div id="digitalizarPanel" class="view-panel hidden">
+                <h2 style="color: var(--primary-blue); border-bottom: 2px solid var(--primary-orange); padding-bottom: 10px;">Digitalizar Documentos</h2>
+                
+                <div class="form-group" style="max-width: 300px;">
+                    <label>Tipo de Documento a Digitalizar</label>
+                    <select id="tipoDigitalizarSelect">
+                        <option value="oficio">Oficio</option>
+                        <option value="resolucion" disabled>Resolución (Próximamente)</option>
+                    </select>
+                </div>
+
+                <div style="background: rgba(26,86,219,0.05); padding: 20px; border-radius: 10px; border: 1px dashed var(--primary-blue); margin-bottom: 20px;">
+                    <h3 style="margin-top: 0; color: var(--primary-blue);">1. Subir Documento Escaneado (PDF/Imagen)</h3>
+                    <input type="file" id="fileInput" accept="image/png, image/jpeg, application/pdf" class="form-group" style="background: white;">
+                    <button id="btnExtraer" class="btn btn-blue">Extraer Datos con IA (OCR)</button>
+                    <div class="loader" id="ocrLoader"></div>
+                    <p id="ocrMsg" style="margin-top:10px; font-weight: bold;"></p>
+                </div>
+
+                <div id="formularioRevisionContainer" class="hidden">
+                    <h3 style="color: var(--text-color);">2. Revisar Datos y Guardar en BD</h3>
+                    <p style="font-size: 0.9em; color: #666;">Por favor, revise que los datos extraídos sean correctos antes de guardar.</p>
+                    <form id="docFormDigitalizar">
+                        <div class="form-group">
+                            <label>Lema del Año</label>
+                            <input type="text" id="d_lema_anio">
+                        </div>
+                        <div class="form-group">
+                            <label>Lugar y Fecha</label>
+                            <input type="text" id="d_lugar_fecha">
+                        </div>
+                        <div class="form-group">
+                            <label>N° Oficio</label>
+                            <input type="text" id="d_nro_oficio" required>
+                        </div>
+                        <h4 style="margin-bottom: 5px;">Datos del Destinatario</h4>
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" id="d_destinatario_titulo">
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" id="d_destinatario_nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cargo</label>
+                            <input type="text" id="d_destinatario_cargo">
+                        </div>
+                        <div class="form-group">
+                            <label>Dependencia</label>
+                            <input type="text" id="d_destinatario_dependencia">
+                        </div>
+                        <h4 style="margin-bottom: 5px;">Cuerpo del Documento</h4>
+                        <div class="form-group">
+                            <label>Asunto</label>
+                            <input type="text" id="d_asunto" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Referencia</label>
+                            <textarea id="d_referencia" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje (Texto Crudo Principal)</label>
+                            <textarea id="d_cuerpo_mensaje" rows="8" required></textarea>
+                        </div>
+                        <h4 style="margin-bottom: 5px;">Datos Finales</h4>
+                        <div class="form-group">
+                            <label>Nombre del Remitente (Firma)</label>
+                            <input type="text" id="d_remitente_nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Número de Trámite (NT)</label>
+                            <input type="text" id="d_nt">
+                        </div>
+                        <div class="form-group">
+                            <label>Folios</label>
+                            <input type="text" id="d_folios">
+                        </div>
+                        <div class="form-group">
+                            <label>Con copia (Cc)</label>
+                            <input type="text" id="d_copia">
+                        </div>
+                        <button type="submit" class="btn btn-orange">Confirmar y Guardar Documento</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PANEL: HISTORIAL DE DOCUMENTOS -->
+            <div id="historialPanel" class="view-panel hidden">
+                <h2 style="color: var(--primary-blue); border-bottom: 2px solid var(--primary-orange); padding-bottom: 10px;">Historial de Documentos</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <p>Documentos generados y almacenados en la base de datos.</p>
+                    <button id="btnRefreshTabla" class="btn btn-blue" style="padding: 8px 15px; font-size: 0.9em;">Actualizar Tabla</button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>N° Oficio</th>
+                                <th>Fecha Registro</th>
+                                <th>Asunto</th>
+                                <th>Destinatario</th>
+                                <th>Estado</th>
+                                <th>PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaOficiosBody">
+                            <tr><td colspan="7" style="text-align: center;">Cargando registros...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Resultado Global -->
+            <div id="resultGlobalPanel" class="hidden" style="margin-top: 20px; padding: 20px; background: rgba(40, 167, 69, 0.1); border-radius: 10px; border-left: 5px solid #28a745;">
+                <h3 style="color: #28a745; margin-top: 0;">¡Operación Exitosa!</h3>
+                <p id="globalSuccessMsg"></p>
+                <p><strong>ID Maestro:</strong> <span id="globalResId"></span></p>
+                <p><strong>Código Único:</strong> <span id="globalResCodigo"></span></p>
+                <button onclick="document.getElementById('resultGlobalPanel').classList.add('hidden')" class="btn" style="margin-top: 10px; background: #ddd;">Cerrar</button>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+# Entornos Virtuales y Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.env/
+.venv/
+ENV/
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Variables de Entorno y Configuración Sensible
+.env
+*.env
+
+# Base de datos local
+*.db
+*.sqlite3
+
+# Archivos y documentos generados por la aplicación
+documentos_generados/*
+!documentos_generados/.gitkeep
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Mac/OSX
+.DS_Store
