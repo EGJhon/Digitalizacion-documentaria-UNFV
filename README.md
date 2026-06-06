@@ -33,7 +33,7 @@ APP_ADMIN_USERNAME=admin
 APP_ADMIN_PASSWORD=admin123
 
 # Configuración de Base de Datos (SQL Server)
-DB_SERVER=host.docker.internal
+DB_SERVER=host.docker.internal,1433
 DB_USER=Digital
 DB_PASSWORD=**********
 DB_NAME=**********
