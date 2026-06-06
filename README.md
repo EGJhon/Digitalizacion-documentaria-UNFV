@@ -41,6 +41,30 @@ DB_NAME=**********
 
 *Nota: Si las variables de base de datos no están definidas, la aplicación utilizará automáticamente una base de datos SQLite de forma local para facilitar el desarrollo.*
 
+## Configuración de SQL Server (Solo Windows)
+
+Si vas a conectar la aplicación (ya sea desde Docker o localmente) a una instancia de SQL Server en tu máquina, debes asegurarte de realizar estas configuraciones previas:
+
+### 1. Habilitar el puerto TCP/IP 1433
+Por defecto, SQL Server no permite conexiones por red, lo cual es estrictamente necesario para conectar la aplicación (especialmente si corre en Docker) a tu base de datos local.
+1. Abre **SQL Server Configuration Manager** (Administrador de configuración de SQL Server) en Windows.
+2. Expande **Configuración de red de SQL Server** y selecciona **Protocolos de MSSQLSERVER** (o la instancia que uses, como `SQLEXPRESS`).
+3. Haz clic derecho en **TCP/IP** y selecciona **Habilitar**.
+4. Haz doble clic en **TCP/IP**, ve a la pestaña **Direcciones IP**, y baja hasta la sección **IPAll** (al final). Asegúrate de que el campo **Puerto TCP** tenga el valor `1433` (y deja vacíos los Puertos dinámicos TCP).
+5. Ve a **Servicios de SQL Server** en el panel izquierdo, haz clic derecho en tu servicio principal (ej. `SQL Server (MSSQLSERVER)` o `SQL Server (SQLEXPRESS)`) y selecciona **Reiniciar**.
+*(Importante: Si el Firewall de Windows está activo, asegúrate de crear una nueva regla de entrada para permitir el tráfico en el puerto TCP 1433).*
+
+### 2. Crear un usuario de SQL Server (Autenticación Mixta)
+El usuario que definas en tu archivo `.env` o en el bloque de variables de entorno debe existir en la base de datos con los permisos necesarios.
+1. Abre **SQL Server Management Studio (SSMS)** y conéctate a tu servidor local.
+2. Asegúrate de que el servidor permita autenticación por usuario/contraseña: Haz clic derecho a tu servidor en el Explorador de objetos > Propiedades > Seguridad > Selecciona **"Modo de autenticación de Windows y SQL Server"** > Ok (Requerirá reiniciar el servicio).
+3. Expande la carpeta **Seguridad** > **Inicios de sesión**.
+4. Haz clic derecho y selecciona **Nuevo inicio de sesión...**
+5. En **Nombre de inicio de sesión**, escribe el usuario que usarás (ej. `Digital`).
+6. Selecciona **Autenticación de SQL Server**, ingresa tu contraseña y desmarca "Exigir directivas de contraseña" para evitar que caduque rápidamente.
+7. En el panel izquierdo, ve a la pestaña **Asignación de usuarios**, selecciona tu base de datos (ej. `DigitalizacionDB`) y en la parte inferior marca el rol `db_owner` (o los permisos de lectura/escritura que correspondan).
+8. Haz clic en **Aceptar**.
+
 ## Ejecución con Docker (Recomendado)
 
 1. Clona el repositorio.
