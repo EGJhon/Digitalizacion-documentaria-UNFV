@@ -35,8 +35,8 @@ APP_ADMIN_PASSWORD=admin123
 # Configuración de Base de Datos (SQL Server)
 DB_SERVER=host.docker.internal
 DB_USER=Digital
-DB_PASSWORD=jhon1234
-DB_NAME=DigitalizacionDB
+DB_PASSWORD=**********
+DB_NAME=**********
 ```
 
 *Nota: Si las variables de base de datos no están definidas, la aplicación utilizará automáticamente una base de datos SQLite de forma local para facilitar el desarrollo.*
