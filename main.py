@@ -8,16 +8,16 @@ import router_generacion
 import router_extraccion
 import router_auth
 
-# Crear las tablas de DB
+# Crear las tablas del DB
 Base.metadata.create_all(bind=engine)
 
-# Asegurar directorios
+# Asegurar los directorios
 os.makedirs("documentos_generados", exist_ok=True)
 os.makedirs("static", exist_ok=True)
 
 app = FastAPI(title="API Módulo de Digitalización UNFV")
 
-# Integrar Routers
+# Integrar los Routers
 app.include_router(router_auth.router)
 app.include_router(router_generacion.router)
 app.include_router(router_extraccion.router)
