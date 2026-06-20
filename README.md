@@ -36,7 +36,7 @@ APP_ADMIN_PASSWORD=admin123
 DB_SERVER=host.docker.internal,1433
 DB_USER=Digital
 DB_PASSWORD=**********
-DB_NAME=**********
+DB_NAME=DigitalizacionDB
 ```
 
 *Nota: Si las variables de base de datos no están definidas, la aplicación utilizará automáticamente una base de datos SQLite de forma local para facilitar el desarrollo.*
