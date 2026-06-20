@@ -47,7 +47,7 @@ Si vas a conectar la aplicación (ya sea desde Docker o localmente) a una instan
 
 ### 1. Habilitar el puerto TCP/IP 1433
 Por defecto, SQL Server no permite conexiones por red, lo cual es estrictamente necesario para conectar la aplicación (especialmente si corre en Docker) a tu base de datos local.
-1. Abre **SQL Server Configuration Manager** (Administrador de configuración de SQL Server) en Windows.
+1. Abre **SQL Server Configuration Manager** (Administrador de configuración de SQL Server) en Windows o `CMD + R` y SQLServerManager16.msc.
 2. Expande **Configuración de red de SQL Server** y selecciona **Protocolos de MSSQLSERVER** (o la instancia que uses, como `SQLEXPRESS`).
 3. Haz clic derecho en **TCP/IP** y selecciona **Habilitar**.
 4. Haz doble clic en **TCP/IP**, ve a la pestaña **Direcciones IP**, y baja hasta la sección **IPAll** (al final). Asegúrate de que el campo **Puerto TCP** tenga el valor `1433` (y deja vacíos los Puertos dinámicos TCP).
