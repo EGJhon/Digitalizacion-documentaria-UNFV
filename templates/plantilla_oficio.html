@@ -4,11 +4,21 @@
     <meta charset="UTF-8">
     <title>Oficio</title>
     <style>
+        html {
+            height: 100%;
+        }
         body { 
             font-family: Arial, sans-serif; 
             margin: 40px 50px; 
             font-size: 11pt;
             color: #000;
+            min-height: calc(100% - 80px); /* Restando los margenes vertical */
+            position: relative;
+        }
+        .footer-container {
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
         }
         .header {
             display: flex;
@@ -66,7 +76,7 @@
         .cuerpo {
             text-align: justify;
             line-height: 1.5;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
         .despedida {
             text-align: center;
@@ -138,7 +148,7 @@
     </div>
 
     <div class="cuerpo">
-        {{ cuerpo_mensaje | replace('\n', '<br><br>') | safe }}
+        {{ cuerpo_mensaje | replace('\n', '<br>') | safe }}
     </div>
 
     <div class="despedida">
@@ -149,16 +159,18 @@
         {{ remitente_nombre }}
     </div>
 
-    <div class="footer-info">
-        {% if nt %}<div>NT: {{ nt }}</div>{% endif %}
-        {% if folios %}<div>Folios: {{ folios }}</div>{% endif %}
-        {% if copia %}<div>Cc: {{ copia }}</div>{% endif %}
-    </div>
+    <div class="footer-container">
+        <div class="footer-info">
+            {% if nt %}<div>NT: {{ nt }}</div>{% endif %}
+            {% if folios %}<div>Folios: {{ folios }}</div>{% endif %}
+            {% if copia %}<div>Cc: {{ copia }}</div>{% endif %}
+        </div>
 
-    <div class="footer-address">
-        Jr. Carlos Gonzales 285, Urb. Maranga, San Miguel<br>
-        Teléfono: 748-0888 Anexos: 160344 y 160345<br>
-        Correo electrónico: occii@unfv.edu.pe / Página web: www.unfv.edu.pe
+        <div class="footer-address">
+            Jr. Carlos Gonzales 285, Urb. Maranga, San Miguel<br>
+            Teléfono: 748-0888 Anexos: 160344 y 160345<br>
+            Correo electrónico: occii@unfv.edu.pe / Página web: www.unfv.edu.pe
+        </div>
     </div>
 
 </body>

@@ -22,6 +22,9 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
 WORKDIR /app
 
 COPY requirements.txt .
+# Instalamos la versión CPU de PyTorch primero para evitar que descargue ~3GB de CUDA.
+# Forzamos >= 2.6.0 para evitar el error de vulnerabilidad de carga de pesos (CVE-2025-32434)
+RUN pip install "torch>=2.6.0" torchvision --extra-index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
