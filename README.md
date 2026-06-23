@@ -36,7 +36,7 @@ APP_ADMIN_PASSWORD=admin123
 DB_SERVER=host.docker.internal,1433
 DB_USER=Digital
 DB_PASSWORD=**********
-DB_NAME=**********
+DB_NAME=DigitalizacionDB
 ```
 
 *Nota: Si las variables de base de datos no están definidas, la aplicación utilizará automáticamente una base de datos SQLite de forma local para facilitar el desarrollo.*
@@ -47,7 +47,7 @@ Si vas a conectar la aplicación (ya sea desde Docker o localmente) a una instan
 
 ### 1. Habilitar el puerto TCP/IP 1433
 Por defecto, SQL Server no permite conexiones por red, lo cual es estrictamente necesario para conectar la aplicación (especialmente si corre en Docker) a tu base de datos local.
-1. Abre **SQL Server Configuration Manager** (Administrador de configuración de SQL Server) en Windows.
+1. Abre **SQL Server Configuration Manager** (Administrador de configuración de SQL Server) en Windows o `CMD + R` y SQLServerManager16.msc.
 2. Expande **Configuración de red de SQL Server** y selecciona **Protocolos de MSSQLSERVER** (o la instancia que uses, como `SQLEXPRESS`).
 3. Haz clic derecho en **TCP/IP** y selecciona **Habilitar**.
 4. Haz doble clic en **TCP/IP**, ve a la pestaña **Direcciones IP**, y baja hasta la sección **IPAll** (al final). Asegúrate de que el campo **Puerto TCP** tenga el valor `1433` (y deja vacíos los Puertos dinámicos TCP).
