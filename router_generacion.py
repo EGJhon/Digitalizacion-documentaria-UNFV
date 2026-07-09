@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import Optional
 from sqlalchemy.orm import Session
 import uuid
 import models
@@ -83,9 +84,82 @@ def obtener_oficios(db: Session = Depends(get_db)):
                 "destinatario": campos.destinatario_nombre,
                 "asunto": campos.asunto,
                 "estado": maestro.estado,
-                "pdf_url": f"/documentos/oficio_{maestro.id}.pdf"
+                "pdf_url": f"/documentos/{maestro.tipo_documento.value}_{maestro.id}.pdf"
             })
             
         return resultados
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener historial: {str(e)}")
+
+@router.get("/documentos")
+def obtener_documentos(
+    q: Optional[str] = Query(None, description="Texto a buscar"),
+    tipo: Optional[str] = Query(None, description="Tipo de documento (oficio, resolucion)"),
+    fecha_inicio: Optional[str] = Query(None, description="Fecha de inicio (YYYY-MM-DD)"),
+    fecha_fin: Optional[str] = Query(None, description="Fecha de fin (YYYY-MM-DD)"),
+    db: Session = Depends(get_db)
+):
+    try:
+        from sqlalchemy import or_, and_, cast, Date
+        
+        # Base query joining Maestro with CamposOficio and CamposResolucion
+        query = db.query(models.DocumentoMaestro, models.CamposOficio, models.CamposResolucion)\
+            .outerjoin(models.CamposOficio, models.DocumentoMaestro.id == models.CamposOficio.maestro_id)\
+            .outerjoin(models.CamposResolucion, models.DocumentoMaestro.id == models.CamposResolucion.maestro_id)
+
+        # Apply Filters
+        if tipo:
+            query = query.filter(models.DocumentoMaestro.tipo_documento == tipo)
+            
+        if fecha_inicio:
+            query = query.filter(cast(models.DocumentoMaestro.fecha_registro, Date) >= fecha_inicio)
+            
+        if fecha_fin:
+            query = query.filter(cast(models.DocumentoMaestro.fecha_registro, Date) <= fecha_fin)
+
+        if q:
+            # Search in common fields of oficio and resolucion
+            search_term = f"%{q}%"
+            query = query.filter(
+                or_(
+                    models.DocumentoMaestro.codigo_unico.ilike(search_term),
+                    models.CamposOficio.nro_oficio.ilike(search_term),
+                    models.CamposOficio.asunto.ilike(search_term),
+                    models.CamposOficio.destinatario_nombre.ilike(search_term),
+                    models.CamposResolucion.nro_resolucion.ilike(search_term),
+                    models.CamposResolucion.autoridad.ilike(search_term)
+                )
+            )
+
+        documentos = query.all()
+        
+        resultados = []
+        for maestro, oficio, resolucion in documentos:
+            nro_doc = ""
+            destinatario = ""
+            asunto_o_autoridad = ""
+            
+            if maestro.tipo_documento.value == "oficio" and oficio:
+                nro_doc = oficio.nro_oficio
+                destinatario = oficio.destinatario_nombre
+                asunto_o_autoridad = oficio.asunto
+            elif maestro.tipo_documento.value == "resolucion" and resolucion:
+                nro_doc = resolucion.nro_resolucion
+                destinatario = "N/A"
+                asunto_o_autoridad = resolucion.autoridad
+            
+            resultados.append({
+                "id_maestro": maestro.id,
+                "codigo_unico": maestro.codigo_unico,
+                "tipo_documento": maestro.tipo_documento.value,
+                "nro_documento": nro_doc,
+                "fecha_registro": maestro.fecha_registro.strftime("%Y-%m-%d %H:%M:%S"),
+                "destinatario": destinatario,
+                "asunto": asunto_o_autoridad,
+                "estado": maestro.estado,
+                "pdf_url": f"/documentos/{maestro.tipo_documento.value}_{maestro.id}.pdf"
+            })
+            
+        return resultados
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener documentos: {str(e)}")

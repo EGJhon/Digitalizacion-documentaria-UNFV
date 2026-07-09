@@ -17,10 +17,16 @@ menuLinks.forEach(link => {
         viewPanels.forEach(p => p.classList.add('hidden'));
         
         // Activar el clickeado
-        e.target.classList.add('active');
-        const targetId = e.target.getAttribute('data-target');
-        document.getElementById(targetId).classList.remove('hidden');
-        resultGlobalPanel.classList.add('hidden');
+        const linkElement = e.currentTarget;
+        linkElement.classList.add('active');
+        const targetId = linkElement.getAttribute('data-target');
+        
+        if (targetId) {
+            document.getElementById(targetId).classList.remove('hidden');
+        }
+        if (resultGlobalPanel) {
+            resultGlobalPanel.classList.add('hidden');
+        }
         
         // Si entramos a historial, cargar datos
         if(targetId === 'historialPanel') {
@@ -90,6 +96,27 @@ const ocrLoader = document.getElementById('ocrLoader');
 const ocrMsg = document.getElementById('ocrMsg');
 const docFormDigitalizar = document.getElementById('docFormDigitalizar');
 const formularioRevisionContainer = document.getElementById('formularioRevisionContainer');
+
+if(fileInput) {
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        const viewer = document.getElementById('pdfViewer');
+        const placeholder = document.getElementById('pdfPlaceholder');
+        if (file && file.type === 'application/pdf') {
+            const url = URL.createObjectURL(file);
+            viewer.src = url;
+            viewer.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        } else {
+            if(viewer && placeholder) {
+                viewer.classList.add('hidden');
+                viewer.src = "";
+                placeholder.classList.remove('hidden');
+            }
+            if (file) console.log("La vista previa solo está disponible para PDFs.");
+        }
+    });
+}
 
 if(btnExtraer) {
     btnExtraer.addEventListener('click', async () => {
@@ -169,18 +196,31 @@ if(docFormDigitalizar) {
 
 // ---------------- LÓGICA: HISTORIAL / TABLA ----------------
 const btnRefreshTabla = document.getElementById('btnRefreshTabla');
+const btnBuscarHistorial = document.getElementById('btnBuscarHistorial');
 const tablaOficiosBody = document.getElementById('tablaOficiosBody');
 
 async function cargarHistorial() {
     if(!tablaOficiosBody) return;
-    tablaOficiosBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Cargando registros...</td></tr>';
+    tablaOficiosBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Cargando registros...</td></tr>';
     
+    // Recoger filtros
+    const q = document.getElementById('filtroTexto') ? document.getElementById('filtroTexto').value : '';
+    const tipo = document.getElementById('filtroTipo') ? document.getElementById('filtroTipo').value : '';
+    const fechaInicio = document.getElementById('filtroFechaInicio') ? document.getElementById('filtroFechaInicio').value : '';
+    const fechaFin = document.getElementById('filtroFechaFin') ? document.getElementById('filtroFechaFin').value : '';
+
+    const params = new URLSearchParams();
+    if(q) params.append('q', q);
+    if(tipo) params.append('tipo', tipo);
+    if(fechaInicio) params.append('fecha_inicio', fechaInicio);
+    if(fechaFin) params.append('fecha_fin', fechaFin);
+
     try {
-        const res = await fetch("/api/v1/generar/oficios");
+        const res = await fetch(`/api/v1/generar/documentos?${params.toString()}`);
         if(res.ok) {
             const data = await res.json();
             if(data.length === 0) {
-                tablaOficiosBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No hay documentos registrados aún.</td></tr>';
+                tablaOficiosBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay documentos registrados aún.</td></tr>';
                 return;
             }
             
@@ -189,7 +229,8 @@ async function cargarHistorial() {
                 filas += `
                     <tr>
                         <td><strong>${doc.id_maestro}</strong></td>
-                        <td>${doc.nro_oficio}</td>
+                        <td><span style="text-transform: capitalize;">${doc.tipo_documento}</span></td>
+                        <td>${doc.nro_documento}</td>
                         <td>${doc.fecha_registro}</td>
                         <td>${doc.asunto}</td>
                         <td>${doc.destinatario}</td>
@@ -200,13 +241,17 @@ async function cargarHistorial() {
             });
             tablaOficiosBody.innerHTML = filas;
         } else {
-            tablaOficiosBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: red;">Error al cargar datos.</td></tr>';
+            tablaOficiosBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Error al cargar datos.</td></tr>';
         }
     } catch (e) {
-        tablaOficiosBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: red;">Error de red.</td></tr>';
+        tablaOficiosBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Error de red.</td></tr>';
     }
 }
 
 if(btnRefreshTabla) {
     btnRefreshTabla.addEventListener('click', cargarHistorial);
+}
+
+if(btnBuscarHistorial) {
+    btnBuscarHistorial.addEventListener('click', cargarHistorial);
 }
