@@ -4,6 +4,27 @@ const globalSuccessMsg = document.getElementById('globalSuccessMsg');
 const globalResId = document.getElementById('globalResId');
 const globalResCodigo = document.getElementById('globalResCodigo');
 
+// Check role and show Usuarios menu if admin
+const userRoleId = localStorage.getItem('unfv_role_id');
+const username = localStorage.getItem('unfv_username');
+
+if (userRoleId === "1") {
+    const menuUsuarios = document.getElementById('menuUsuarios');
+    if (menuUsuarios) menuUsuarios.classList.remove('hidden');
+}
+
+if (username) {
+    const topbarUserRole = document.getElementById('topbarUserRole');
+    const topbarUserAvatar = document.getElementById('topbarUserAvatar');
+    if (topbarUserRole) {
+        topbarUserRole.textContent = userRoleId === "1" ? "Admin Panel" : "Panel Usuario";
+    }
+    if (topbarUserAvatar) {
+        topbarUserAvatar.textContent = username.substring(0, 2).toUpperCase();
+        topbarUserAvatar.title = username;
+    }
+}
+
 // Navegación de Paneles
 const menuLinks = document.querySelectorAll('.menu-link');
 const viewPanels = document.querySelectorAll('.view-panel');
@@ -254,4 +275,158 @@ if(btnRefreshTabla) {
 
 if(btnBuscarHistorial) {
     btnBuscarHistorial.addEventListener('click', cargarHistorial);
+}
+
+// ---------------- LÓGICA: GESTIÓN DE USUARIOS ----------------
+const userForm = document.getElementById('userForm');
+const selectRol = document.getElementById('u_role_id');
+const tablaUsuariosBody = document.getElementById('tablaUsuariosBody');
+const userMsg = document.getElementById('userMsg');
+
+async function cargarRoles() {
+    if(!selectRol) return;
+    try {
+        const res = await fetch("/api/v1/users/roles");
+        if (res.ok) {
+            const roles = await res.json();
+            selectRol.innerHTML = '<option value="">Seleccione un rol...</option>';
+            roles.forEach(r => {
+                selectRol.innerHTML += `<option value="${r.id}">${r.nombre}</option>`;
+            });
+        }
+    } catch (e) {
+        console.error("Error al cargar roles", e);
+    }
+}
+
+async function cargarUsuarios() {
+    if(!tablaUsuariosBody) return;
+    try {
+        const res = await fetch("/api/v1/users/");
+        if (res.ok) {
+            const usuarios = await res.json();
+            if(usuarios.length === 0) {
+                tablaUsuariosBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No hay usuarios.</td></tr>';
+                return;
+            }
+            let filas = '';
+            usuarios.forEach(u => {
+                filas += `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.username}</td>
+                        <td>${u.role_id}</td>
+                    </tr>
+                `;
+            });
+            tablaUsuariosBody.innerHTML = filas;
+        }
+    } catch (e) {
+        console.error("Error al cargar usuarios", e);
+    }
+}
+
+if(userForm) {
+    userForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const role_id = document.getElementById('u_role_id').value;
+        const username = document.getElementById('u_username').value;
+        const password = document.getElementById('u_password').value;
+
+        try {
+            const res = await fetch("/api/v1/users/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ role_id: parseInt(role_id), username, password })
+            });
+
+            if (res.ok) {
+                userMsg.textContent = "Usuario creado exitosamente";
+                userMsg.style.color = "green";
+                userForm.reset();
+                cargarUsuarios();
+            } else {
+                const err = await res.json();
+                userMsg.textContent = err.detail || "Error al crear usuario";
+                userMsg.style.color = "red";
+            }
+        } catch (error) {
+            userMsg.textContent = "Error de conexión";
+            userMsg.style.color = "red";
+        }
+    });
+}
+
+// Interceptar clicks de menú para cargar datos de usuarios
+menuLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        const targetId = e.currentTarget.getAttribute('data-target');
+        if(targetId === 'usuariosPanel') {
+            cargarRoles();
+            cargarUsuarios();
+        }
+    });
+});
+
+// ---------------- LÓGICA: CAMBIAR CONTRASEÑA ----------------
+const btnCambiarClave = document.getElementById('btnCambiarClave');
+const modalCambiarClave = document.getElementById('modalCambiarClave');
+const btnCloseModalClave = document.getElementById('btnCloseModalClave');
+const formCambiarClave = document.getElementById('formCambiarClave');
+const msgCambiarClave = document.getElementById('msgCambiarClave');
+
+if (btnCambiarClave) {
+    btnCambiarClave.addEventListener('click', () => {
+        modalCambiarClave.classList.remove('hidden');
+        msgCambiarClave.textContent = '';
+        if(formCambiarClave) formCambiarClave.reset();
+    });
+}
+
+if (btnCloseModalClave) {
+    btnCloseModalClave.addEventListener('click', () => {
+        modalCambiarClave.classList.add('hidden');
+    });
+}
+
+if (formCambiarClave) {
+    formCambiarClave.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const old_password = document.getElementById('old_password').value;
+        const new_password = document.getElementById('new_password').value;
+        const current_username = localStorage.getItem('unfv_username');
+
+        if (!current_username) {
+            msgCambiarClave.textContent = 'Error: No se encontró el usuario actual.';
+            msgCambiarClave.style.color = 'red';
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/v1/users/password', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: current_username,
+                    old_password: old_password,
+                    new_password: new_password
+                })
+            });
+
+            if (res.ok) {
+                msgCambiarClave.textContent = 'Contraseña actualizada exitosamente.';
+                msgCambiarClave.style.color = 'green';
+                setTimeout(() => {
+                    modalCambiarClave.classList.add('hidden');
+                }, 1500);
+            } else {
+                const err = await res.json();
+                msgCambiarClave.textContent = err.detail || 'Error al cambiar contraseña.';
+                msgCambiarClave.style.color = 'red';
+            }
+        } catch (error) {
+            msgCambiarClave.textContent = 'Error de conexión.';
+            msgCambiarClave.style.color = 'red';
+        }
+    });
 }

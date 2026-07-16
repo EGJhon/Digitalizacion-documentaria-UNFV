@@ -25,3 +25,28 @@ class ResolucionCreate(BaseModel):
 class UserLogin(BaseModel):
     username: str = Field(..., min_length=1)
     password: str = Field(..., min_length=1)
+
+class RoleResponse(BaseModel):
+    id: int
+    nombre: str
+
+    class Config:
+        from_attributes = True
+
+class UserCreate(BaseModel):
+    username: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=1)
+    role_id: int
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    role_id: int
+
+    class Config:
+        from_attributes = True
+
+class UserChangePassword(BaseModel):
+    username: str
+    old_password: str
+    new_password: str = Field(..., min_length=1)

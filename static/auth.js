@@ -25,6 +25,8 @@ if(loginForm) {
             if(res.ok) {
                 const data = await res.json();
                 localStorage.setItem("unfv_token", data.token);
+                if (data.role_id) localStorage.setItem("unfv_role_id", data.role_id);
+                if (data.username) localStorage.setItem("unfv_username", data.username);
                 window.location.href = "dashboard.html";
             } else {
                 errorMsg.textContent = "Credenciales incorrectas";
@@ -43,6 +45,8 @@ if(btnLogout) {
     btnLogout.addEventListener("click", (e) => {
         e.preventDefault();
         localStorage.removeItem("unfv_token");
+        localStorage.removeItem("unfv_role_id");
+        localStorage.removeItem("unfv_username");
         window.location.href = "login.html";
     });
 }

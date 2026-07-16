@@ -60,3 +60,21 @@ class CamposResolucion(Base):
 
     # Relación inversa al maestro
     maestro = relationship("DocumentoMaestro", back_populates="campos_resolucion")
+
+class Role(Base):
+    __tablename__ = "roles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(50), unique=True, index=True, nullable=False)
+
+    usuarios = relationship("User", back_populates="role")
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
+
+    role = relationship("Role", back_populates="usuarios")
