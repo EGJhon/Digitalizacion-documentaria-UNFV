@@ -27,6 +27,7 @@ if(loginForm) {
                 localStorage.setItem("unfv_token", data.token);
                 if (data.role_id) localStorage.setItem("unfv_role_id", data.role_id);
                 if (data.username) localStorage.setItem("unfv_username", data.username);
+                if (data.user_id) localStorage.setItem("unfv_user_id", data.user_id);
                 window.location.href = "dashboard.html";
             } else {
                 errorMsg.textContent = "Credenciales incorrectas";
@@ -47,6 +48,7 @@ if(btnLogout) {
         localStorage.removeItem("unfv_token");
         localStorage.removeItem("unfv_role_id");
         localStorage.removeItem("unfv_username");
+        localStorage.removeItem("unfv_user_id");
         window.location.href = "login.html";
     });
 }

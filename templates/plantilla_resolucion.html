@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resolución UNFV</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 25mm 20mm;
+            background-color: #ffffff;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.15;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        .header-center {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .rep-peru { font-size: 11pt; }
+        .unfv { font-size: 14pt; font-weight: bold; margin-top: 5px; }
+        .sec-gen { font-size: 12pt; font-weight: bold; margin-top: 5px;}
+        
+        .lema {
+            text-align: center;
+            font-style: italic;
+            font-size: 11pt;
+            margin-bottom: 25px;
+        }
+        .titulo {
+            text-align: left;
+            font-weight: bold;
+            font-size: 12pt;
+            margin-bottom: 5px;
+        }
+        .fecha {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        
+        .texto-justificado {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+        .considerando-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .resuelve-title {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 25px;
+            margin-bottom: 20px;
+        }
+        .articulo {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+        
+        .cierre {
+            margin-top: 25px;
+            margin-bottom: 60px;
+        }
+        
+        /* Uso de display table en lugar de flexbox para máxima compatibilidad con conversores a PDF */
+        .firmas {
+            display: table;
+            width: 100%;
+            margin-top: 50px;
+            page-break-inside: avoid;
+        }
+        .firma-box {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            vertical-align: bottom;
+        }
+        .firma-texto {
+            font-weight: bold;
+            font-size: 10pt;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            width: 80%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-center">
+        <div class="rep-peru">REPUBLICA DEL PERU</div>
+        <div class="unfv">UNIVERSIDAD NACIONAL FEDERICO VILLARREAL</div>
+        <div class="sec-gen">SECRETARIA GENERAL</div>
+    </div>
+
+    <div class="lema">
+        "{{ lema_anio }}"
+    </div>
+
+    <div class="titulo">
+        RESOLUCION R. N° {{ nro_resolucion }}
+    </div>
+
+    <div class="fecha">
+        {{ lugar_fecha }}
+    </div>
+
+    <div class="texto-justificado">
+        <strong>Vistos,</strong> {{ vistos_texto }}; y
+    </div>
+
+    <div class="considerando-title">
+        CONSIDERANDO:
+    </div>
+
+    {% for considerando in considerandos %}
+    <div class="texto-justificado">
+        Que, {{ considerando }};
+    </div>
+    {% endfor %}
+
+    <div class="texto-justificado">
+        {{ parrafo_previo_resuelve }}
+    </div>
+
+    <div class="resuelve-title">
+        SE RESUELVE:
+    </div>
+
+    {% for articulo in articulos %}
+    <div class="articulo">
+        <strong>ARTÍCULO {{ articulo.numero }}. -</strong> {{ articulo.texto }}
+    </div>
+    {% endfor %}
+
+    <div class="cierre">
+        {{ texto_cierre }}
+    </div>
+
+    <div class="firmas">
+        <div class="firma-box">
+            <div class="firma-texto">{{ secretario_nombre }}<br>SECRETARIO GENERAL</div>
+        </div>
+        <div class="firma-box">
+            <div class="firma-texto">{{ rectora_nombre }}<br>RECTORA</div>
+        </div>
+    </div>
+
+</body>
+</html>

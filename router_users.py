@@ -4,6 +4,7 @@ from typing import List
 import bcrypt
 import models, schemas
 from database import get_db
+from dependencies import get_current_user, get_current_admin_user
 
 router = APIRouter(
     prefix="/api/v1/users",
@@ -15,12 +16,12 @@ def get_password_hash(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
 @router.get("/roles", response_model=List[schemas.RoleResponse])
-def get_roles(db: Session = Depends(get_db)):
+def get_roles(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_admin_user)):
     roles = db.query(models.Role).all()
     return roles
 
 @router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
-def create_user(user_in: schemas.UserCreate, db: Session = Depends(get_db)):
+def create_user(user_in: schemas.UserCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_admin_user)):
     db_user = db.query(models.User).filter(models.User.username == user_in.username).first()
     if db_user:
         raise HTTPException(status_code=400, detail="El nombre de usuario ya está registrado")
@@ -38,15 +39,29 @@ def create_user(user_in: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
+    log = models.LogAuditoria(
+        usuario_id=new_user.id,
+        accion="CREAR",
+        modulo="USUARIOS",
+        detalles=f"Se registró un nuevo usuario: {new_user.username}"
+    )
+    db.add(log)
+    db.commit()
+    
     return new_user
 
 @router.get("/", response_model=List[schemas.UserResponse])
-def get_users(db: Session = Depends(get_db)):
+def get_users(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_admin_user)):
     users = db.query(models.User).all()
     return users
 
 @router.put("/password")
-def change_password(data: schemas.UserChangePassword, db: Session = Depends(get_db)):
+def change_password(data: schemas.UserChangePassword, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    # Solo el propio usuario o un admin puede cambiar la clave
+    if current_user.username != data.username and current_user.role_id != 1:
+        raise HTTPException(status_code=403, detail="No tienes permisos para cambiar esta contraseña")
+
     user = db.query(models.User).filter(models.User.username == data.username).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -55,5 +70,14 @@ def change_password(data: schemas.UserChangePassword, db: Session = Depends(get_
         raise HTTPException(status_code=401, detail="Contraseña actual incorrecta")
         
     user.password_hash = get_password_hash(data.new_password)
+    
+    log = models.LogAuditoria(
+        usuario_id=user.id,
+        accion="ACTUALIZAR",
+        modulo="USUARIOS",
+        detalles=f"El usuario {user.username} cambió su contraseña"
+    )
+    db.add(log)
     db.commit()
+    
     return {"mensaje": "Contraseña actualizada exitosamente"}

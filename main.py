@@ -8,6 +8,7 @@ import router_generacion
 import router_extraccion
 import router_auth
 import router_users
+import router_logs
 
 # Crear las tablas del DB
 Base.metadata.create_all(bind=engine)
@@ -55,10 +56,10 @@ app.include_router(router_auth.router)
 app.include_router(router_users.router)
 app.include_router(router_generacion.router)
 app.include_router(router_extraccion.router)
+app.include_router(router_logs.router)
 
 # Montar frontend
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/documentos", StaticFiles(directory="documentos_generados"), name="documentos")
 
 @app.get("/")
 def root():

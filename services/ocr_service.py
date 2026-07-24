@@ -52,10 +52,14 @@ def extraer_datos_oficio(file_bytes: bytes, filename: str) -> dict:
             "datos_sugeridos": {"nro_oficio": None, "fecha": None, "remitente": None, "destinatario": None, "asunto": None}
         }
     
-    # 6. Ya tenemos el texto extraído con máxima precisión, pasamos por nuestras reglas Regex
-    # Usamos el texto no agrupado porque nuestras regex de Destinatario y Firma dependen de los saltos de línea
-    from services.extractors.oficio_extractor import extraer_campos_oficio
-    datos = extraer_campos_oficio(texto_para_regex)
+    # 6. Intentar extracción con LLM Local (Ollama)
+    from services.llm_service import extraer_json_con_llm
+    datos = extraer_json_con_llm(texto_para_regex)
+    
+    if not datos:
+        print("Fallback a extracción por expresiones regulares (Regex).")
+        from services.extractors.oficio_extractor import extraer_campos_oficio
+        datos = extraer_campos_oficio(texto_para_regex)
     
     # 7. Recortar el texto bonito para que SOLO muestre el cuerpo del mensaje
     import re
@@ -74,5 +78,52 @@ def extraer_datos_oficio(file_bytes: bytes, filename: str) -> dict:
         
     return {
         "texto_crudo": cuerpo_bonito, # Devolvemos a la UI SOLO el cuerpo recortado
+        "datos_sugeridos": datos
+    }
+
+
+def extraer_datos_resolucion(file_bytes: bytes, filename: str) -> dict:
+    """
+    Recibe los bytes de un archivo (PDF o Imagen).
+    Utiliza IA (EasyOCR y LLM) para leer y estructurar una resolución.
+    """
+    try:
+        load_ai_model()
+        texto_para_regex = ""
+
+        if filename.lower().endswith('.pdf'):
+            # Convertir todas las páginas (no limitar a last_page=1)
+            images = convert_from_bytes(file_bytes)
+            if not images:
+                raise ValueError("No se pudo extraer ninguna página del PDF.")
+            
+            for i, img in enumerate(images):
+                imagen = img.convert("RGB")
+                img_np = np.array(imagen)
+                result = reader.readtext(img_np, detail=0, paragraph=False)
+                texto_para_regex += "\n".join(result) + "\n"
+        else:
+            imagen = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+            img_np = np.array(imagen)
+            result = reader.readtext(img_np, detail=0, paragraph=False)
+            texto_para_regex = "\n".join(result)
+
+        
+    except Exception as e:
+        print(f"Error procesando con IA local: {e}")
+        return {
+            "texto_crudo": f"Error IA: {str(e)}",
+            "datos_sugeridos": {}
+        }
+    
+    from services.llm_service import extraer_json_con_llm_resolucion
+    datos = extraer_json_con_llm_resolucion(texto_para_regex)
+    
+    if not datos:
+        print("Fallo el LLM para resolucion, devolviendo vacio.")
+        datos = {}
+        
+    return {
+        "texto_crudo": texto_para_regex,
         "datos_sugeridos": datos
     }

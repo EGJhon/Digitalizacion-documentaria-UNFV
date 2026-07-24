@@ -15,12 +15,19 @@ class OficioCreate(BaseModel):
     nt: str | None = None
     folios: str | None = None
     copia: str | None = None
+    usuario_id: int | None = None
 
 class ResolucionCreate(BaseModel):
     nro_resolucion: str = Field(..., min_length=1)
-    autoridad: str = Field(..., min_length=1)
+    lema_anio: str | None = None
+    lugar_fecha: str | None = None
+    vistos_texto: str | None = None
     considerandos: str = Field(..., min_length=1)
+    parrafo_previo_resuelve: str | None = None
     articulos: str = Field(..., min_length=1)
+    texto_cierre: str | None = None
+    secretario_nombre: str | None = None
+    rectora_nombre: str | None = None
 
 class UserLogin(BaseModel):
     username: str = Field(..., min_length=1)

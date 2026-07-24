@@ -17,6 +17,10 @@ class DocumentoMaestro(Base):
     tipo_documento = Column(Enum(TipoDocumento), nullable=False)
     estado = Column(String(20), default="generado") # ej. "generado", "extraido", "firmado"
     ruta_pdf_final = Column(String(255), nullable=True)
+    usuario_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    # Relaciones
+    usuario = relationship("User", back_populates="documentos_creados")
 
     # Relaciones One-to-One
     # uselist=False asegura que sea una relación 1 a 1 en SQLAlchemy
@@ -54,9 +58,15 @@ class CamposResolucion(Base):
     maestro_id = Column(Integer, ForeignKey("documento_maestro.id"), unique=True, nullable=False)
     
     nro_resolucion = Column(String(50), nullable=False)
-    autoridad = Column(String(200), nullable=False)
+    lema_anio = Column(String(255), nullable=True)
+    lugar_fecha = Column(String(100), nullable=True)
+    vistos_texto = Column(Text, nullable=True)
     considerandos = Column(Text, nullable=False)
+    parrafo_previo_resuelve = Column(Text, nullable=True)
     articulos = Column(Text, nullable=False)
+    texto_cierre = Column(Text, nullable=True)
+    secretario_nombre = Column(String(200), nullable=True)
+    rectora_nombre = Column(String(200), nullable=True)
 
     # Relación inversa al maestro
     maestro = relationship("DocumentoMaestro", back_populates="campos_resolucion")
@@ -78,3 +88,17 @@ class User(Base):
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
 
     role = relationship("Role", back_populates="usuarios")
+    documentos_creados = relationship("DocumentoMaestro", back_populates="usuario")
+    logs = relationship("LogAuditoria", back_populates="usuario")
+
+class LogAuditoria(Base):
+    __tablename__ = "log_auditoria"
+
+    id = Column(Integer, primary_key=True, index=True)
+    fecha_accion = Column(DateTime, default=datetime.utcnow)
+    usuario_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    accion = Column(String(50), nullable=False) # e.g., CREAR, EDITAR, LOGIN
+    modulo = Column(String(50), nullable=False) # e.g., OFICIOS, DIGITALIZACION
+    detalles = Column(Text, nullable=True)
+
+    usuario = relationship("User", back_populates="logs")

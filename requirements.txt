@@ -12,3 +12,6 @@ torch>=2.6.0
 easyocr
 numpy
 bcrypt
+requests
+PyJWT==2.8.0
+pypdf

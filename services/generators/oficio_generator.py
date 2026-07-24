@@ -6,6 +6,15 @@ from datetime import datetime
 # Configurar Jinja2
 env = Environment(loader=FileSystemLoader("templates"))
 
+def generar_html(datos: dict) -> str:
+    """
+    Renderiza la plantilla HTML para un Oficio y retorna el HTML como string.
+    """
+    template = env.get_template("plantilla_oficio.html")
+    # Agregar fecha actual
+    datos["fecha_actual"] = datetime.now().strftime("%d de %B del %Y")
+    return template.render(datos)
+
 def generar_pdf(datos: dict, id_maestro: int, output_dir: str) -> str:
     """
     Renderiza la plantilla HTML para un Oficio y lo exporta a PDF.

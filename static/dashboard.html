@@ -39,6 +39,12 @@
                         <span>Usuarios</span>
                     </a>
                 </li>
+                <li id="menuAuditoria" class="hidden">
+                    <a class="menu-link" data-target="auditoriaPanel">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Auditoría</span>
+                    </a>
+                </li>
             </ul>
         </aside>
 
@@ -75,13 +81,15 @@
                         <p>Genera nuevos oficios de manera estructurada.</p>
                     </div>
                     
-                    <div class="card" style="max-width: 800px;">
-                        
-                        <div class="form-group" style="max-width: 250px;">
+                    <div class="split-layout">
+                        <!-- Columna Izquierda: Formulario -->
+                        <div class="card">
+                            
+                            <div class="form-group" style="max-width: 250px;">
                             <label>Tipo de Documento a Crear</label>
                             <select id="tipoCrearSelect">
                                 <option value="oficio">Oficio</option>
-                                <option value="resolucion" disabled>Resolución (Próximamente)</option>
+                                <option value="resolucion">Resolución</option>
                             </select>
                         </div>
 
@@ -93,9 +101,15 @@
                                     <label>Lema del Año</label>
                                     <input type="text" id="c_lema_anio" placeholder='"Año de..."'>
                                 </div>
-                                <div class="form-group">
-                                    <label>Lugar y Fecha</label>
-                                    <input type="text" id="c_lugar_fecha" placeholder="San Miguel, 27 de mayo de 2025">
+                                <div class="form-group" style="display: flex; gap: 10px;">
+                                    <div style="flex: 1;">
+                                        <label>Lugar</label>
+                                        <input type="text" id="c_lugar" placeholder="San Miguel">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label>Fecha</label>
+                                        <input type="date" id="c_fecha">
+                                    </div>
                                 </div>
                             </div>
                             
@@ -163,11 +177,145 @@
                             </div>
 
                             <div style="margin-top: 25px; text-align: right;">
+                                <button type="button" id="btnPrevisualizarCrear" class="btn btn-orange" style="margin-right: 10px;">
+                                    <i class="fas fa-eye"></i> Previsualizar
+                                </button>
                                 <button type="submit" class="btn btn-blue">
                                     <i class="fas fa-save"></i> Generar y Guardar Documento
                                 </button>
                             </div>
                         </form>
+
+                        <form id="docFormResolucion" class="hidden">
+                            <input type="hidden" id="r_origen" value="manual">
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Lema del Año</label>
+                                    <input type="text" id="r_lema_anio" placeholder='"Año de..."'>
+                                </div>
+                                <div class="form-group" style="display: flex; gap: 10px;">
+                                    <div style="flex: 1;">
+                                        <label>Lugar</label>
+                                        <input type="text" id="r_lugar" placeholder="San Miguel">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label>Fecha</label>
+                                        <input type="date" id="r_fecha">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" style="max-width: 50%;">
+                                <label>N° Resolución</label>
+                                <input type="text" id="r_nro_resolucion" required>
+                            </div>
+                            
+                            <div class="form-section-title">Cuerpo del Documento</div>
+                            <div class="form-group">
+                                <label>Vistos</label>
+                                <textarea id="r_vistos_texto" rows="2" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Considerandos (Separar por enter)</label>
+                                <textarea id="r_considerandos" rows="4" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Párrafo Previo Resuelve</label>
+                                <textarea id="r_parrafo_previo_resuelve" rows="2" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Artículos (Separar por enter, formato: NRO|Texto)</label>
+                                <textarea id="r_articulos" rows="4" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Texto Cierre</label>
+                                <input type="text" id="r_texto_cierre" required>
+                            </div>
+
+                            <div class="form-section-title">Datos Finales (Firmas)</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Nombre Secretario(a) General</label>
+                                    <input type="text" id="r_secretario_nombre" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nombre Rector(a)</label>
+                                    <input type="text" id="r_rectora_nombre" required>
+                                </div>
+                            </div>
+
+                            <div class="form-section-title">Anexos</div>
+                            <div class="form-group">
+                                <label>Adjuntar PDF adicional (Max 10MB)</label>
+                                <input type="file" id="r_adjuntoPdf" accept=".pdf" style="display: block; width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                            </div>
+
+                            <div style="margin-top: 25px; text-align: right;">
+                                <button type="button" id="btnPrevisualizarResolucion" class="btn btn-orange" style="margin-right: 10px;">
+                                    <i class="fas fa-eye"></i> Previsualizar
+                                </button>
+                                <button type="submit" class="btn btn-blue">
+                                    <i class="fas fa-save"></i> Generar y Guardar Resolución
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+
+                    <!-- Columna Derecha: Vista Previa -->
+                    <div class="card" style="background: #e9ecef; display: flex; flex-direction: column; padding: 10px;">
+                        <div style="font-weight: 600; margin-bottom: 10px; color: var(--sidebar-bg); text-align: center;">Vista Previa del Documento</div>
+                        <iframe id="previewIframeCrear" style="flex: 1; width: 100%; min-height: 600px; background: white; border: 1px solid #ccc; border-radius: 4px;"></iframe>
+                    </div>
+                </div>
+                </div>
+                
+                <!-- PANEL: AUDITORIA (Solo Admin) -->
+                <div id="auditoriaPanel" class="view-panel hidden">
+                    <div class="page-header">
+                        <h2>Registro de Auditoría</h2>
+                        <p>Historial de acciones realizadas por los usuarios del sistema.</p>
+                    </div>
+                    
+                    <div class="filters-container" style="margin-bottom: 20px;">
+                        <div class="form-row" style="align-items: flex-end; margin-bottom: 0;">
+                            <div class="form-group" style="margin-bottom: 0; max-width: 200px;">
+                                <label>Fecha Inicio</label>
+                                <input type="date" id="filtroAuditoriaInicio">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0; max-width: 200px;">
+                                <label>Fecha Fin</label>
+                                <input type="date" id="filtroAuditoriaFin">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <button id="btnFiltrarAuditoria" class="btn btn-blue"><i class="fas fa-search"></i> Filtrar</button>
+                                <button id="btnDescargarAuditoria" class="btn btn-orange" style="margin-left: 10px;"><i class="fas fa-download"></i> Descargar CSV</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="max-width: 1000px;">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha y Hora</th>
+                                        <th>Usuario</th>
+                                        <th>Acción</th>
+                                        <th>Módulo</th>
+                                        <th>Detalles</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaAuditoriaBody">
+                                    <!-- Dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -186,7 +334,7 @@
                                 <label>Tipo de Documento a Digitalizar</label>
                                 <select id="tipoDigitalizarSelect">
                                     <option value="oficio">Oficio</option>
-                                    <option value="resolucion" disabled>Resolución (Próximamente)</option>
+                                    <option value="resolucion">Resolución</option>
                                 </select>
                             </div>
 
@@ -268,12 +416,87 @@
                                             <input type="text" id="d_copia">
                                         </div>
                                     </div>
+                                    <div class="form-section-title">Anexos</div>
+                                    <div class="form-group">
+                                        <label>Adjuntar PDF adicional (Max 10MB)</label>
+                                        <input type="file" id="d_adjuntoPdf" accept=".pdf" style="display: block; width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                                    </div>
+                                    
                                     <div style="text-align: right; margin-top: 20px;">
                                         <button type="submit" class="btn btn-orange">
                                             <i class="fas fa-check"></i> Confirmar y Guardar
                                         </button>
                                     </div>
                                 </form>
+
+                                <form id="docFormDigitalizarResolucion" class="hidden">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Lema del Año</label>
+                                            <input type="text" id="dr_lema_anio">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Lugar y Fecha</label>
+                                            <input type="text" id="dr_lugar_fecha">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group" style="max-width: 50%;">
+                                        <label>N° Resolución</label>
+                                        <input type="text" id="dr_nro_resolucion" required>
+                                    </div>
+                                    
+                                    <div class="form-section-title">Cuerpo del Documento</div>
+                                    <div class="form-group">
+                                        <label>Vistos</label>
+                                        <textarea id="dr_vistos_texto" rows="2" required></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Considerandos (Separar por enter)</label>
+                                        <textarea id="dr_considerandos" rows="4" required></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Párrafo Previo Resuelve</label>
+                                        <textarea id="dr_parrafo_previo_resuelve" rows="2" required></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Artículos (Separar por enter, formato: NRO|Texto)</label>
+                                        <textarea id="dr_articulos" rows="4" required></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Texto Cierre</label>
+                                        <input type="text" id="dr_texto_cierre" required>
+                                    </div>
+
+                                    <div class="form-section-title">Datos Finales (Firmas)</div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Nombre Secretario(a) General</label>
+                                            <input type="text" id="dr_secretario_nombre" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Nombre Rector(a)</label>
+                                            <input type="text" id="dr_rectora_nombre" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-section-title">Anexos</div>
+                                    <div class="form-group">
+                                        <label>Adjuntar PDF adicional (Max 10MB)</label>
+                                        <input type="file" id="dr_adjuntoPdf" accept=".pdf" style="display: block; width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                                    </div>
+                                    
+                                    <div style="text-align: right; margin-top: 20px;">
+                                        <button type="submit" class="btn btn-orange">
+                                            <i class="fas fa-check"></i> Confirmar y Guardar
+                                        </button>
+                                    </div>
+                                </form>
+
                             </div>
                         </div>
                         
@@ -331,13 +554,12 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Tipo</th>
-                                        <th>N° Documento</th>
+                                        <th>Código Único</th>
+                                        <th>Tipo Doc.</th>
+                                        <th>Detalle</th>
                                         <th>Fecha Registro</th>
-                                        <th>Asunto / Autoridad</th>
-                                        <th>Destinatario</th>
                                         <th>Estado</th>
-                                        <th>Acción</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tablaOficiosBody">
@@ -441,6 +663,23 @@
         </div>
     </div>
 
+    <!-- MODAL DETALLES DOCUMENTO -->
+    <div id="detallesModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detalles del Documento</h2>
+                <span class="close-modal" id="closeModalBtn">&times;</span>
+            </div>
+            <div class="modal-body" id="modalDetallesBody">
+                <!-- Se llenará dinámicamente -->
+            </div>
+            <div class="modal-footer" style="text-align: right; padding-top: 10px; border-top: 1px solid #ddd; margin-top: 20px;">
+                <button type="button" class="btn btn-blue" id="btnCerrarModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>

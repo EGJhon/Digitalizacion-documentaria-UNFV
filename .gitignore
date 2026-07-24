@@ -17,9 +17,7 @@ dist/
 .env
 *.env
 
-# Base de datos local
-*.db
-*.sqlite3
+
 
 # Archivos y documentos generados por la aplicación
 documentos_generados/*
